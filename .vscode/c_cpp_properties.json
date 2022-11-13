@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/melodic/include/**",
+        "/home/leeyongjae/catkin_ws/devel/include/**",
+        "/home/leeyongjae/catkin_ws/src/f1tenth_simulator/include/**",
+        "/home/leeyongjae/catkin_ws/src/gps/include/**",
+        "/home/leeyongjae/catkin_ws/src/ublox/ublox_gps/include/**",
+        "/home/leeyongjae/catkin_ws/src/ublox/ublox_msg_filters/include/**",
+        "/home/leeyongjae/catkin_ws/src/ublox/ublox_msgs/include/**",
+        "/home/leeyongjae/catkin_ws/src/ublox/ublox_serialization/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
