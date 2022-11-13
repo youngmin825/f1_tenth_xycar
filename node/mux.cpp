@@ -21,6 +21,7 @@ private:
     // Listen for messages from joystick and keyboard
     ros::Subscriber joy_sub;
     ros::Subscriber key_sub;
+    ros::Subscriber nav_sub;
 
     // Publish drive data to simulator/car
     ros::Publisher drive_pub;
@@ -28,6 +29,7 @@ private:
     // Mux indices
     int joy_mux_idx;
     int key_mux_idx;
+    int nav_mux_idx = 4;
 
     // Mux controller array
     std::vector<bool> mux_controller;
@@ -72,7 +74,8 @@ public:
         // Start subscribers to listen to joy and keyboard messages
         joy_sub = n.subscribe(joy_topic, 1, &Mux::joy_callback, this);
         key_sub = n.subscribe(key_topic, 1, &Mux::key_callback, this);
-
+        nav_sub = n.subscribe("/nav", 1, &Mux::nav_callback, this);
+        
         // get mux indices
         n.getParam("joy_mux_idx", joy_mux_idx);
         n.getParam("key_mux_idx", key_mux_idx);
@@ -230,6 +233,17 @@ public:
                 publish_to_drive(desired_velocity, desired_steer);
                 prev_key_velocity = desired_velocity;
             }
+        }
+    }
+
+    void nav_callback(const ackermann_msgs::AckermannDriveStamped &msg)
+    {
+        if (mux_controller[nav_mux_idx]) {
+            // Calculate desired velocity and steering angle
+            double desired_velocity = msg.drive.speed;
+            double desired_steer = msg.drive.steering_angle;
+
+            publish_to_drive(desired_velocity, desired_steer);
         }
     }
 

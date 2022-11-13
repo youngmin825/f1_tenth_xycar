@@ -28,6 +28,7 @@ private:
     ros::Subscriber odom_sub;
     ros::Subscriber imu_sub;
     ros::Subscriber brake_bool_sub;
+    ros::Subscriber nav_sub;
 
     // Publisher for mux controller
     ros::Publisher mux_pub;
@@ -110,6 +111,7 @@ public:
         odom_sub = n.subscribe(odom_topic, 1, &BehaviorController::odom_callback, this);
         key_sub = n.subscribe(keyboard_topic, 1, &BehaviorController::key_callback, this);
         brake_bool_sub = n.subscribe(brake_bool_topic, 1, &BehaviorController::brake_callback, this);
+        // nav_sub = n.subscribe("/nav", 1, &BehaviorController::nav_callback, this);
 
         // Get mux indices
         n.getParam("joy_mux_idx", joy_mux_idx);
@@ -212,7 +214,7 @@ public:
                 // calculate projected velocity
                 double proj_velocity = state.velocity * cosines[i];
                 double ttc = (msg.ranges[i] - car_distances[i]) / proj_velocity;
-
+                // printf("ttc = %lf\n", ttc);
                 // if it's small, there's a collision
                 if ((ttc < ttc_threshold) && (ttc >= 0.0)) { 
                     // Send a blank mux and write to file
@@ -321,6 +323,39 @@ public:
     }
 
     void key_callback(const std_msgs::String & msg) {
+        // Changing mux controller:
+        if (msg.data == joy_key_char) {
+            // joystick
+            toggle_mux(joy_mux_idx, "Joystick");
+        } else if (msg.data == keyboard_key_char) {
+            // keyboard
+            toggle_mux(key_mux_idx, "Keyboard");
+        } else if (msg.data == brake_key_char) {
+            // emergency brake 
+            if (safety_on) {
+                ROS_INFO("Emergency brake turned off");
+                safety_on = false;
+            }
+            else {
+                ROS_INFO("Emergency brake turned on");
+                safety_on = true;
+            }
+        } else if (msg.data == random_walk_key_char) {
+            // random walker
+            toggle_mux(random_walker_mux_idx, "Random Walker");
+        } else if (msg.data == nav_key_char) {
+            // nav
+            toggle_mux(nav_mux_idx, "Navigation");
+        }
+        // ***Add new else if statement here for new planning method***
+        // if (msg.data == new_key_char) {
+        //  // new planner
+        //  toggle_mux(new_mux_idx, "New Planner");
+        // }
+
+    }
+
+    void nav_callback(const std_msgs::String & msg) {
         // Changing mux controller:
         if (msg.data == joy_key_char) {
             // joystick
