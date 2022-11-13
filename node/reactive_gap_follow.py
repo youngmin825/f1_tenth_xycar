@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 import math
 import numpy as np
+import time
 
 #ROS Imports
 import rospy
@@ -33,16 +34,19 @@ class reactive_follow_gap:
             1.Setting each value to the mean over some window
             2.Rejecting high values (eg. > 3m)
         """
+        
         global valid_range
 
-        average_num = 40
+        average_num = 30
         
         proc_ranges = [0 for i in range(valid_range)]
 
         for i in range(valid_range):
             for j in range(average_num):
-                proc_ranges[i] += ranges[valid_range/2 + i - j]   # if i = 0 //  proc_ranges[0] = ranges[270] + ranges[269] + ...
+                proc_ranges[i] += ranges[540 - valid_range/2 + i - j]   # if i = 0 //  proc_ranges[0] = ranges[270] + ranges[269] + ...
             proc_ranges[i] = proc_ranges[i] / (average_num * 2)
+        
+        
         return proc_ranges
 
         # n = 20
@@ -59,13 +63,14 @@ class reactive_follow_gap:
     def find_max_gap(self, free_space_ranges):
         """ Return the start index & end index of the max gap in free_space_ranges
         """
+        
         gap_length = 0
         count = 0
         start_i = 0
         end_i = 0
 
         for i in range(len(free_space_ranges)):
-            if free_space_ranges[i] > 0.5:
+            if free_space_ranges[i] > 0:
                 count += 1
 
             else:
@@ -75,6 +80,7 @@ class reactive_follow_gap:
                     start_i = i - count
                 count = 0
                 
+       
         return start_i, end_i
     
     def find_best_point(self, start_i, end_i, ranges):
@@ -82,6 +88,7 @@ class reactive_follow_gap:
         Return index of best point in ranges
 	Naive: Choose the furthest point within ranges and go there
         """
+        
         global valid_range
         best_index = 0
         far_dist = 0
@@ -90,7 +97,7 @@ class reactive_follow_gap:
             if far_dist < ranges[i]:
                 far_dist = ranges[i]
                 best_index = i
-
+        
         return best_index + valid_range/2
 
         # print("%d, %d", start_i, end_i)
@@ -157,24 +164,30 @@ class reactive_follow_gap:
         # angle = (kp * p_error) + (ki * i_error) + (kd * d_error)
 
         angle = -(pre_heading - best_point_index)
-            
-        if min < 1:
-            angle = angle*2
-        elif 1 < min < 2:
-            angle = angle*1.5
-        else:
-            angle = angle
+        speed = 1
+
+        if min < 0.05:
+            speed = speed * 0.25
+            angle = angle * 2
+        elif 0.05 <= min < 0.1:
+            speed = speed * 0.5
+            angle = angle * 1.5
+        elif 0.1 <= min < 0.15:
+            speed = speed * 0.75
+
+        
         print(start_i, end_i)
+        print(min)
         print(best_point_index)
         print(ranges[best_point_index])
+        print(ranges[540])
         print(angle)
         
-
         #Publish Drive message
         drive_msg = AckermannDriveStamped()
         drive_msg.header.stamp = rospy.Time.now()
         drive_msg.header.frame_id = "laser"
-        drive_msg.drive.steering_angle = angle * data.angle_increment
+        drive_msg.drive.steering_angle = angle * data.angle_increment 
         drive_msg.drive.speed = 0.5
         self.drive_pub.publish(drive_msg)
 
