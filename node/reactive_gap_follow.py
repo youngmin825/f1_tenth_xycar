@@ -166,24 +166,25 @@ class reactive_follow_gap:
         # angle = (kp * p_error) + (ki * i_error) + (kd * d_error)
 
         angle = -(pre_heading - best_point_index)
-        speed = 1
+        speed = 1.5
 
         if min < 0.05:
-            speed = speed * 0.25
-            angle = angle * 2
+            speed = speed * 0.1
+            angle = angle * 2.5
         elif 0.05 <= min < 0.1:
             speed = speed * 0.5
-            angle = angle * 1.5
+            angle = angle * 2.0
         elif 0.1 <= min < 0.15:
+            angle = angle * 1.5
             speed = speed * 0.75
 
         
-        print(start_i, end_i)
-        print(min)
-        print(best_point_index)
-        print(ranges[best_point_index])
-        print(ranges[540])
-        print(angle)
+        # print(start_i, end_i)
+        print('min',min)
+        # print(best_point_index)
+        # print(ranges[best_point_index])
+        # print(ranges[540])
+        print('angle',angle)
         
         #Publish Drive message
         drive_msg = AckermannDriveStamped()
