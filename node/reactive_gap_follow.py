@@ -15,12 +15,7 @@ from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 pre_heading = 540
 valid_range = 540
 start_idx = 270
-# kp = 0.7
-# kd = 0.1
-# ki = 0.00001
-# prev_error = 0.0 
-# error = 0.0
-# integral = 0.0
+
 
 class reactive_follow_gap:
     def __init__(self):
@@ -32,6 +27,8 @@ class reactive_follow_gap:
         self.drive_pub = rospy.Publisher(drive_topic, AckermannDriveStamped, queue_size=1) #TODO
         
         self.ranges = np.array(0)
+
+    # 전처리를 한다.
     def preprocess_lidar(self):
         """ Preprocess the LiDAR scan array. Expert implementation includes:
             1.Setting each value to the mean over some window
@@ -40,19 +37,15 @@ class reactive_follow_gap:
         
         global valid_range
         global start_idx
+
+        # 앞뒤 lidar index를 앞뒤 5개씩의 값을 가지고 평균을 구한다. 
         average_num = 5
 
-        # for i in range(len(self.ranges)):
-        #     if self.ranges[i] > 10.0:
-        #         self.ranges[i] = 10.0
-
+        
+        # proc_range는 앞의 180도만 보게 제안한다.
         proc_ranges = [0 for i in range(valid_range)]
 
-        # for i in range(valid_range):
-        #     for j in range(average_num):
-        #         proc_ranges[i] += self.ranges[540 - valid_range/2 + i - j]   # if i = 0 //  proc_ranges[0] = ranges[270] + ranges[269] + ...
-        #     proc_ranges[i] = proc_ranges[i] / (average_num * 2)
-
+        # lidar range의 평균을 구한다.
         for i in range(valid_range):
             for j in range(average_num):
                 
@@ -71,17 +64,8 @@ class reactive_follow_gap:
         
         return proc_ranges
 
-        # n = 20
-        # proc_ranges = list(ranges[270:810])
-        # for i in range(len(proc_ranges)):
-        #     for j in range(n):
-        #         if i - j + n/2 < 0:
-        #             proc_ranges[i] += proc_ranges[i - j + n/2 + 660] / n
-        #         elif i - j + n/2 >= 660:
-        #             proc_ranges[i] += proc_ranges[i - j + n/2 - 660] / n
-        #         else:
-        #             proc_ranges[i] += proc_ranges[i - j + n/2] / n
-
+        
+    # 최대 gap을 찾는다.
     def find_max_gap(self, free_space_ranges):
         """ Return the start index & end index of the max gap in free_space_ranges
         """
@@ -91,6 +75,7 @@ class reactive_follow_gap:
         start_i = 0
         end_i = 0
 
+        # 거리가 2.0이상인 것만 추려낸다.
         for i in range(len(free_space_ranges)):
             if free_space_ranges[i] > 2.0:
                 count += 1
@@ -102,9 +87,10 @@ class reactive_follow_gap:
                     start_i = i - count
                 count = 0
                 
-       
+        # gap의 시작 인덱스와 끝 인덱스이다.
         return start_i, end_i
     
+    # gap에서 가장 먼 점을 찾는다.
     def find_best_point(self, start_i, end_i, proc_ranges):
         """Start_i & end_i are start and end indicies of max-gap range, respectively
         Return index of best point in ranges
@@ -120,16 +106,10 @@ class reactive_follow_gap:
                 far_dist = proc_ranges[i]
                 best_index = i
 
-            # if far_dist == proc_ranges[i]:
-            #     count += 1
-
-            # else:
-            #     best_index = best_index + int(count * 0.2)
-            #     count = 0
-        
+        # best index(180도만 본다.)를 원래 360도 인덱스로 바꿔 준다.
         return best_index + valid_range* 0.5
 
-        # print("%d, %d", start_i, end_i)
+        
         return (end_i + start_i)/2 + valid_range/2
 
     def lidar_callback(self, data):
@@ -142,14 +122,17 @@ class reactive_follow_gap:
         proc_ranges = self.preprocess_lidar()
 
         #Find closest point to LiDAR
+        ###############################################
         min = 100
         min_idx = 0
         for i in range(len(proc_ranges)):
             if(proc_ranges[i] < min):
                 min = proc_ranges[i]
                 min_idx = i
+        ###############################################
 
         #Eliminate all points inside 'bubble' (set them to zero) 
+        ###############################################
         bubble_radius = 0.5
 
         i = 1
@@ -167,6 +150,7 @@ class reactive_follow_gap:
                 i = i + 1
             else:
                 break
+        ###############################################
 
         #Find max length gap 
         start_i, end_i = self.find_max_gap(proc_ranges)
@@ -174,41 +158,15 @@ class reactive_follow_gap:
         #Find the best point in the gap 
         best_point_index = self.find_best_point(start_i, end_i, proc_ranges)
 
-        # # PID
-        # global integral
-        # global prev_error
-        # global kp
-        # global ki
-        # global kd
-
-        # error = -(pre_heading - best_point_index)
-
-        # p_error = error
-        # d_error = error - prev_error
-        # i_error = integral + error
-
-        # integral = integral + error
-        # prev_error = error
-
-        # angle = (kp * p_error) + (ki * i_error) + (kd * d_error)
-
+        
+        # 현재 앞의 인덱스와 best_index 사이의 차이를 각도로 설정한다. 
         angle = -(pre_heading - best_point_index)
         speed = 0.5
 
-        # if min < 0.5:
-        #     speed = 0
-        # if min < 0.05:
-        #     speed = speed * 1.0
-        #     angle = angle * 2.0
-        # elif 0.05 <= min < 0.1:
-        #     speed = speed * 0.5
-        #     sangle = angle * 1.5
-        # elif 0.1 <= min < 0.15:
-        #     speed = speed * 0.75
-        #     angle = angle * 1.0
-        print('angle',angle * data.angle_increment )
+        # print('angle',angle * data.angle_increment )
         angle = angle * data.angle_increment 
 
+        # 각도에 따라 속도를 달리한다.
         if abs(angle) > 0.3:
             speed = speed * 0.7
            
@@ -221,12 +179,12 @@ class reactive_follow_gap:
 
         
         # print(start_i, end_i)
-        print('min',min)
+        # print('min',min)
         # print(best_point_index)
         # print(ranges[best_point_index])
         # print(ranges[540])
 
-        print('best_point', best_point_index, 'distance',self.ranges[int(best_point_index)])
+        # print('best_point', best_point_index, 'distance',self.ranges[int(best_point_index)])
 
         
         # print('angle',angle)
