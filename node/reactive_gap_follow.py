@@ -14,7 +14,7 @@ from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 
 pre_heading = 540
 valid_range = 540
-
+start_idx = 270
 # kp = 0.7
 # kd = 0.1
 # ki = 0.00001
@@ -30,23 +30,43 @@ class reactive_follow_gap:
 
         self.lidar_sub = rospy.Subscriber(lidarscan_topic, LaserScan, self.lidar_callback) #TODO
         self.drive_pub = rospy.Publisher(drive_topic, AckermannDriveStamped, queue_size=1) #TODO
-    
-    def preprocess_lidar(self, ranges):
+        
+        self.ranges = np.array(0)
+    def preprocess_lidar(self):
         """ Preprocess the LiDAR scan array. Expert implementation includes:
             1.Setting each value to the mean over some window
             2.Rejecting high values (eg. > 3m)
         """
         
         global valid_range
+        global start_idx
+        average_num = 5
 
-        average_num = 30
-        
+        # for i in range(len(self.ranges)):
+        #     if self.ranges[i] > 10.0:
+        #         self.ranges[i] = 10.0
+
         proc_ranges = [0 for i in range(valid_range)]
+
+        # for i in range(valid_range):
+        #     for j in range(average_num):
+        #         proc_ranges[i] += self.ranges[540 - valid_range/2 + i - j]   # if i = 0 //  proc_ranges[0] = ranges[270] + ranges[269] + ...
+        #     proc_ranges[i] = proc_ranges[i] / (average_num * 2)
 
         for i in range(valid_range):
             for j in range(average_num):
-                proc_ranges[i] += ranges[540 - valid_range/2 + i - j]   # if i = 0 //  proc_ranges[0] = ranges[270] + ranges[269] + ...
+                
+
+                proc_ranges[i] += self.ranges[start_idx + i - j]  
+
+            for j in range(average_num):
+
+                  
+
+                proc_ranges[i] += self.ranges[start_idx + i + j]
+
             proc_ranges[i] = proc_ranges[i] / (average_num * 2)
+    
         
         
         return proc_ranges
@@ -72,7 +92,7 @@ class reactive_follow_gap:
         end_i = 0
 
         for i in range(len(free_space_ranges)):
-            if free_space_ranges[i] > 0:
+            if free_space_ranges[i] > 2.0:
                 count += 1
 
             else:
@@ -85,7 +105,7 @@ class reactive_follow_gap:
        
         return start_i, end_i
     
-    def find_best_point(self, start_i, end_i, ranges):
+    def find_best_point(self, start_i, end_i, proc_ranges):
         """Start_i & end_i are start and end indicies of max-gap range, respectively
         Return index of best point in ranges
 	Naive: Choose the furthest point within ranges and go there
@@ -94,13 +114,20 @@ class reactive_follow_gap:
         global valid_range
         best_index = 0
         far_dist = 0
-
+        count = 0
         for i in range(start_i, end_i + 1):
-            if far_dist < ranges[i]:
-                far_dist = ranges[i]
+            if far_dist < proc_ranges[i]:
+                far_dist = proc_ranges[i]
                 best_index = i
+
+            # if far_dist == proc_ranges[i]:
+            #     count += 1
+
+            # else:
+            #     best_index = best_index + int(count * 0.2)
+            #     count = 0
         
-        return best_index + valid_range/2
+        return best_index + valid_range* 0.5
 
         # print("%d, %d", start_i, end_i)
         return (end_i + start_i)/2 + valid_range/2
@@ -111,8 +138,8 @@ class reactive_follow_gap:
         global pre_heading
         global valid_range
 
-        ranges = data.ranges
-        proc_ranges = self.preprocess_lidar(ranges)
+        self.ranges = np.array(data.ranges)
+        proc_ranges = self.preprocess_lidar()
 
         #Find closest point to LiDAR
         min = 100
@@ -166,17 +193,31 @@ class reactive_follow_gap:
         # angle = (kp * p_error) + (ki * i_error) + (kd * d_error)
 
         angle = -(pre_heading - best_point_index)
-        speed = 1.5
+        speed = 0.5
 
-        if min < 0.05:
-            speed = speed * 0.1
-            angle = angle * 2.5
-        elif 0.05 <= min < 0.1:
-            speed = speed * 0.5
-            angle = angle * 2.0
-        elif 0.1 <= min < 0.15:
-            angle = angle * 1.5
-            speed = speed * 0.75
+        # if min < 0.5:
+        #     speed = 0
+        # if min < 0.05:
+        #     speed = speed * 1.0
+        #     angle = angle * 2.0
+        # elif 0.05 <= min < 0.1:
+        #     speed = speed * 0.5
+        #     sangle = angle * 1.5
+        # elif 0.1 <= min < 0.15:
+        #     speed = speed * 0.75
+        #     angle = angle * 1.0
+        print('angle',angle * data.angle_increment )
+        angle = angle * data.angle_increment 
+
+        if abs(angle) > 0.3:
+            speed = speed * 0.8
+           
+        elif abs(angle) > 0.17:
+            speed = speed * 1.0
+          
+        else:
+        
+            speed = speed * 1.1
 
         
         # print(start_i, end_i)
@@ -184,14 +225,18 @@ class reactive_follow_gap:
         # print(best_point_index)
         # print(ranges[best_point_index])
         # print(ranges[540])
-        print('angle',angle)
+
+        print('best_point', best_point_index, 'distance',self.ranges[int(best_point_index)])
+
+        
+        # print('angle',angle)
         
         #Publish Drive message
         drive_msg = AckermannDriveStamped()
         drive_msg.header.stamp = rospy.Time.now()
         drive_msg.header.frame_id = "laser"
-        drive_msg.drive.steering_angle = angle * data.angle_increment 
-        drive_msg.drive.speed = 0.5
+        drive_msg.drive.steering_angle = angle 
+        drive_msg.drive.speed = speed
         self.drive_pub.publish(drive_msg)
 
 def main(args):
