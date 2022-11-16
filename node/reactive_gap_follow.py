@@ -210,7 +210,7 @@ class reactive_follow_gap:
         angle = angle * data.angle_increment 
 
         if abs(angle) > 0.3:
-            speed = speed * 0.8
+            speed = speed * 0.7
            
         elif abs(angle) > 0.17:
             speed = speed * 1.0
