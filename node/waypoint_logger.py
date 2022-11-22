@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import rospy
 import numpy as np
 import atexit
@@ -10,7 +11,7 @@ from tf.transformations import euler_from_quaternion
 from nav_msgs.msg import Odometry
 
 home = expanduser('~')
-file = open(strftime(home+'/rcws/logs/wp-%Y-%m-%d-%H-%M-%S',gmtime())+'.csv', 'w')
+file = open(strftime(home+'/xycar_ws/src/f1tenth_simulator/logs/wp-%Y-%m-%d-%H-%M-%S',gmtime())+'.csv', 'w')
 
 def save_waypoint(data):
     quaternion = np.array([data.pose.pose.orientation.x, 
@@ -23,7 +24,7 @@ def save_waypoint(data):
                               data.twist.twist.linear.y, 
                               data.twist.twist.linear.z]),2)
     if data.twist.twist.linear.x>0.:
-        print data.twist.twist.linear.x
+        print(data.twist.twist.linear.x)
 
     file.write('%f, %f, %f, %f\n' % (data.pose.pose.position.x,
                                      data.pose.pose.position.y,
