@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 from __future__ import print_function
 from codecs import ignore_errors
 import sys
@@ -94,9 +94,9 @@ class WallFollow:
         # rospy.loginfo("angle = %f", angle)
 
         if(angle >= -10 / 180 * math.pi or angle <= 10 / 180 * math.pi ):
-            speed = 3.0
-        elif(((angle >= -20 / 180 * math.pi) and (angle <= -10 / 180 * math.pi)) or ((angle <= 20 / 180 * math.pi) and (angle >= 10 / 180 * math.pi))):
             speed = 2.0
+        elif(((angle >= -20 / 180 * math.pi) and (angle <= -10 / 180 * math.pi)) or ((angle <= 20 / 180 * math.pi) and (angle >= 10 / 180 * math.pi))):
+            speed = 1.5
         else:
             speed = 1.0
         
