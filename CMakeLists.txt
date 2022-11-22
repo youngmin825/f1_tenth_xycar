@@ -99,6 +99,14 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
+  catkin_install_python(PROGRAMS node/waypoint_logger.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+
+  catkin_install_python(PROGRAMS node/pure_pursuit.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+
   # Install the library
   install(TARGETS ${PROJECT_NAME}
       ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
