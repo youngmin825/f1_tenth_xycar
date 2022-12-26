@@ -85,6 +85,7 @@ if __name__ == '__main__':
         rospy.init_node('odom_node', anonymous=True)
         
         sub = rospy.Subscriber('/imu', Imu, imu_to_odom ,queue_size=10)
+        rospy.spin()
         
     except rospy.ROSInterruptException:
         pass
