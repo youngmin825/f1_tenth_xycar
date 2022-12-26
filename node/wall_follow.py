@@ -118,7 +118,7 @@ class WallFollow:
 
 
         # rospy.loginfo("0 = %d , 270 = % d, 540 = %d, 810 = %d", distance[0], distance[270], distance[540], distance[810])
-        # rospy.loginfo("a = %f, b = %f", a, b)
+        rospy.loginfo("a = %f, b = %f", a, b)
         theta= 130 * data.angle_increment
 
         alpha = math.atan( (a*math.cos(theta) - b) / (a*math.sin(theta)) )

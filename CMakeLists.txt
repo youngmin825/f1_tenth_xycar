@@ -95,6 +95,18 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
       add_dependencies(${_node_name} f1tenth_simulator_generate_messages_cpp)
   endforeach()
 
+  # file(GLOB NODE_SRC_FILES node/pure_pursuit/*.cpp)
+  # foreach(_node_file ${NODE_SRC_FILES})
+  #     get_filename_component(_node_name ${_node_file} NAME_WE)
+  #     add_executable(${_node_name} ${_node_file})
+  #     target_link_libraries(${_node_name} ${LIBS})
+  #     add_dependencies(${_node_name} f1tenth_simulator_generate_messages_cpp)
+  # endforeach()
+
+  # add_executable(f1tenth_simulator node/pure_pursuit/vehicle_controller.cpp)
+  # add_dependencies(f1tenth_simulator ${catkin_EXPORTED_TARGETS})
+
+
   catkin_install_python(PROGRAMS node/reactive_gap_follow.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
