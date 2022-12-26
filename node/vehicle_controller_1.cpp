@@ -85,7 +85,7 @@ public:
         
 
         odom_pub_2.publish(odom_test_2);
-        ros::Rate rate(0.1);
+        // ros::Rate rate(0.1);
         odom_pub_1.publish(odom_test_1);
         
 

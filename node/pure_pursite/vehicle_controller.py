@@ -309,9 +309,9 @@ def vehicle_control_node(data):
         command.drive.speed = SPEED_TURN_MIN
 
     # rospy.loginfo("angle= %f",command.drive.steering_angle)
-    command.header.stamp = rospy.Time.now()
-    command.header.frame_id = "map"
-    command.drive.jerk = 0.0
+    # command.header.stamp = rospy.Time.now()
+    # command.header.frame_id = "map"
+    # command.drive.jerk = 0.0
     command_pub.publish(command)
 
 # relative pose callback
