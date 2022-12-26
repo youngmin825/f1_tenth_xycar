@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# license removed for brevity
+# https://answers.ros.org/question/359624/convert-imu-to-odom/
 import rospy
 from nav_msgs.msg import Odometry
 # import smbus
