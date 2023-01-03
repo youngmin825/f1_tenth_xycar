@@ -36,6 +36,7 @@ ang_goal_pub = rospy.Publisher('/purepursuit_control/ang_goal', PoseStamped, que
 vel_goal_pub = rospy.Publisher('/purepursuit_control/vel_goal', PoseStamped, queue_size = 1)
 plan_size    = 0
 
+# waypoint를 불러온다.
 def construct_path():
     global plan_size
     file_path = os.path.expanduser('~/xycar_ws/src/f1tenth_simulator/logs/wp-2022-11-22-15-46-54.csv')
@@ -45,6 +46,7 @@ def construct_path():
         for waypoint in csv_reader:
             plan.append(waypoint)
 
+    # plan[x좌표][y좌표]
     for index in range(0, len(plan)):
         for point in range(0, len(plan[index])):
             plan[index][point] = float(plan[index][point])
@@ -66,6 +68,7 @@ else:
     ang_lookahead_dist = 100
     vel_lookahead_dist = 200
 
+# 상태에 따라서 현재 가장 가까운 waypoint를 기준으로 얼마나 앞을 볼 것인지 결정한다.
 def dist_callback(data):
     global ang_lookahead_dist
     global vel_lookahead_dist
@@ -79,6 +82,7 @@ def dist_callback(data):
 
     vel_lookahead_dist = ang_lookahead_dist * 2
 
+# 목표점인 waypoint를 topic으로 보낸다. 
 def pose_callback(data):
     global seq
     global plan_size
@@ -113,6 +117,7 @@ def pose_callback(data):
 
     # if pose_index > plan_size:
     #     pose_index = pose_index - plan_size
+
 
     pose_index_2 = (data.data + vel_lookahead_dist) % plan_size
     # rospy.loginfo('current index: {}/{}'.format(pose_index, plan_size))

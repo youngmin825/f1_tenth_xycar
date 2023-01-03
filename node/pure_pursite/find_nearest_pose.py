@@ -20,6 +20,7 @@ min_index_pub = rospy.Publisher('/purepursuit_control/index_nearest_point', Int6
 
 min_pose_pub  = rospy.Publisher('/purepursuit_control/visualize_nearest_point', PoseStamped, queue_size = 1)
 
+# waypoint를 불러온다.
 def construct_path():
     file_path = os.path.expanduser('~/xycar_ws/src/f1tenth_simulator/logs/wp-2022-11-22-15-46-54.csv')
 
@@ -29,11 +30,13 @@ def construct_path():
             plan.append(waypoint)
             # print(waypoint)
 
-  
+    # plan[x좌표][y좌표]
     for index in range(0, len(plan)):
         for point in range(0, len(plan[index])):
             plan[index][point] = float(plan[index][point])
             # print(plan[index][point])
+
+# 현재 odometry값을 받아서 현재에서 가장 가까운 waypoint를 찾는다.
 def odom_callback(data):
     
     curr_x = float(data.pose.pose.position.x)
@@ -51,7 +54,7 @@ def odom_callback(data):
     min_pose_pub.publish(pose)
     # rospy.sleep(0.1)
 
-
+# 가장 가까운 waypoint를 찾는 함수
 def find_nearest_point(curr_x, curr_y):
     ranges = []
     for index in range(0, len(plan)):

@@ -106,18 +106,21 @@ if(DEFINED CATKIN_DEVEL_PREFIX)
   # add_executable(f1tenth_simulator node/pure_pursuit/vehicle_controller.cpp)
   # add_dependencies(f1tenth_simulator ${catkin_EXPORTED_TARGETS})
 
+  #   catkin_install_python(PROGRAMS node/wall_follow.py
+  #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  # )
 
-  catkin_install_python(PROGRAMS node/reactive_gap_follow.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
+  # catkin_install_python(PROGRAMS node/reactive_gap_follow.py
+  #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  # )
 
-  catkin_install_python(PROGRAMS node/waypoint_logger.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
+  # catkin_install_python(PROGRAMS node/waypoint_logger.py
+  #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  # )
 
-  catkin_install_python(PROGRAMS node/pure_pursuit.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
+  # catkin_install_python(PROGRAMS node/pure_pursuit.py
+  #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  # )
 
   # Install the library
   install(TARGETS ${PROJECT_NAME}

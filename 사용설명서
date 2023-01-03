@@ -1,0 +1,16 @@
+#f1tenth 프로젝트
+
+# 파일 설명
+- node/create_waypoint: way_point를 생성해서 pure_pursite알고리즘을 실행하기 위한 준비 작업
+
+- node/obstacle_avoidance: 장애물 회피 알고리즘
+
+- node/PID_control: 벽을 따라서 pid제어를 하는 알고리즘
+
+- node/pure_pursite + vehicle_controller_1.cpp: pure_pursite 알고리즘 구  
+
+
+# launch 파일 실행 방법
+
+- roslaunch f1tenth_simulator simulator.launch
+
