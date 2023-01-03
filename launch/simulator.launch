@@ -73,21 +73,21 @@
   </node>
 
   
-  <node pkg="f1tenth_simulator" name="nearest_pose_isolator" type="find_nearest_pose.py" output="screen">
+  <node pkg="f1tenth_simulator" name="nearest_pose_finder_node" type="nearest_pose_finder.py" output="screen">
     <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   </node>
 
   
-  <node pkg="f1tenth_simulator" name="adaptive_lookahead_node" type="adaptive_lookahead.py" output="screen">
+  <node pkg="f1tenth_simulator" name="adaptive_lookahead_node" type="lookahead.py" output="screen">
     <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   </node>
 
  
-  <node pkg="f1tenth_simulator" name="nearest_goal_isolator" type="find_nearest_goal.py" output="screen" args="true 0.1">
+  <node pkg="f1tenth_simulator" name="nearest_goal_finder_node" type="nearest_goal_finder.py" output="screen" args="true 0.1">
     <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   </node>
 
-  <node pkg="f1tenth_simulator" name="vehicle_control_node" type="vehicle_controller.py" output="screen" args="false true 0.1">
+  <node pkg="f1tenth_simulator" name="xycar_control_node" type="xycar_control.py" output="screen" args="false true 0.1">
     <rosparam command="load" file="$(find f1tenth_simulator)/params.yaml"/>
   </node>
   
