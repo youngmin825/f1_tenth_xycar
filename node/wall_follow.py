@@ -94,9 +94,9 @@ class WallFollow:
         # rospy.loginfo("angle = %f", angle)
 
         if(angle >= -10 / 180 * math.pi or angle <= 10 / 180 * math.pi ):
-            speed = 2.0
+            speed = 3.0
         elif(((angle >= -20 / 180 * math.pi) and (angle <= -10 / 180 * math.pi)) or ((angle <= 20 / 180 * math.pi) and (angle >= 10 / 180 * math.pi))):
-            speed = 1.5
+            speed = 2.0
         else:
             speed = 1.0
         
@@ -118,7 +118,7 @@ class WallFollow:
 
 
         # rospy.loginfo("0 = %d , 270 = % d, 540 = %d, 810 = %d", distance[0], distance[270], distance[540], distance[810])
-        rospy.loginfo("a = %f, b = %f", a, b)
+        # rospy.loginfo("a = %f, b = %f", a, b)
         theta= 130 * data.angle_increment
 
         alpha = math.atan( (a*math.cos(theta) - b) / (a*math.sin(theta)) )
