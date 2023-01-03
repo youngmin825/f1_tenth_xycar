@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# https://github.com/aamishhussain/path_following/tree/1aedd93e5f6d6641f43caf863ae4aea7a151afd6
 import rospy
 import math
 import tf
@@ -80,7 +81,7 @@ ANGLE_RANGE_D       = 5.0
 MAX_VEL_GOAL_DIST   = 6.0
 
 # vehicle physical parameters
-
+# 바퀴의 길이를 여기에 적는다.
 WHEELBASE_LEN       = 0.0381
 
 # adaptive speed control based on lookahead distance
@@ -248,6 +249,7 @@ def vehicle_control_node(data):
     # rospy.loginfo("error = %f", error)
     
     #TODO: Use kp, ki & kd to implement a PID controller for
+    # pid 제어를 실행한다.
     p_error = angle_error
     d_error = angle_error - prev_error
     i_error = integral + angle_error
@@ -316,6 +318,7 @@ def vehicle_control_node(data):
 
 # relative pose callback
 
+# 목표 각도를 업데이트 한다.
 def ang_pose_callback(data):
 
     global ang_goal_x
@@ -324,6 +327,7 @@ def ang_pose_callback(data):
     ang_goal_x = data.pose.position.x
     ang_goal_y = data.pose.position.y
 
+# 목표 속도를 업데이트 한다.
 def vel_pose_callback(data):
 
     global vel_goal_x
@@ -338,6 +342,7 @@ global lookahead_state
 
 lookahead_state = 'caution'
 
+# 얼마나 앞을 볼건지 업데이트 한다.
 def dist_callback(data):
 
     global lookahead_state
@@ -347,7 +352,7 @@ def dist_callback(data):
 if __name__ == '__main__':
     try:
 
-        rospy.init_node('vehicle_control_node', anonymous = True)
+        rospy.init_node('xycar_control_node', anonymous = True)
         rospy.Subscriber('/odom_test_1', Odometry, vehicle_control_node)
         
         if adaptive_lookahead == 'true':

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
+# https://github.com/aamishhussain/path_following/tree/1aedd93e5f6d6641f43caf863ae4aea7a151afd6
 import rospy
 import sys
 import os
@@ -15,6 +17,7 @@ sectors = []
 
 decision_pub  = rospy.Publisher('/purepursuit_control/adaptive_lookahead', String, queue_size = 1)
 
+# waypoint를 불러온다.
 def construct_path():
     file_path = os.path.expanduser('~/xycar_ws/src/f1tenth_simulator/logs/wp-2022-11-22-15-46-54.csv')
 
@@ -23,11 +26,12 @@ def construct_path():
         for sector in csv_reader:
             sectors.append(sector)
 
-    
+    # sectors[sector][0]: x좌표, sectors[sector][1]: y좌표
     for sector in range(0, len(sectors)):
             sectors[sector][0] = float(sectors[sector][0])
             sectors[sector][1] = float(sectors[sector][1])
-    
+
+# 현재 위치 상태를 파악한다.   
 def pose_callback(data):
 
     curr_pose_index = data.data
